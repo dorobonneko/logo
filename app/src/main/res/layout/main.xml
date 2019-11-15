@@ -6,16 +6,19 @@
 	android:gravity="center"
 	android:orientation="vertical">
 
-	<EditText
-		android:id="@+id/logo1"
-		android:layout_width="match_parent"
-		android:layout_height="wrap_content"/>
-
 	<Button
-		android:id="@+id/create"
+		android:id="@+id/new_project"
 		android:layout_width="wrap_content"
 		android:layout_height="wrap_content"
-		android:text="生成"/>
+		android:text="新建项目"
+		style="@style/Borderless"/>
+
+	<Button
+		android:id="@+id/open_img"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:text="打开镜像"
+		style="@style/Borderless"/>
 
 </LinearLayout>
 

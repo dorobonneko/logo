@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="@android:style/Theme.Holo.Light">
+    <style name="AppTheme" parent="@android:style/Theme.DeviceDefault.Light">
+	</style>
+	<style name="Borderless" parent="@android:style/Widget.DeviceDefault">
+		<item name="android:background">?android:attr/selectableItemBackgroundBorderless</item>
+		<item name="android:padding">0dp</item>
 	</style>
 </resources>

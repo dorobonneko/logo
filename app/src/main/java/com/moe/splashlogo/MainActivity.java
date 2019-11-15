@@ -1,22 +1,26 @@
 package com.moe.splashlogo;
 
-import android.widget.*;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.view.View;
-import android.content.Intent;
-import java.io.File;
-import android.os.Environment;
 import android.Manifest;
+import android.app.Activity;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.widget.EditText;
+import android.widget.Button;
+import android.os.Bundle;
+import android.view.View;
+import android.view.Menu;
+import android.widget.ViewFlipper;
+import android.widget.Toast;
+import android.os.Environment;
+import android.widget.ImageView;
+import android.widget.ProgressBar;
+import android.view.MenuItem;
+import com.moe.splashlogo.fragment.Main;
 
-public class MainActivity extends Activity implements View.OnClickListener 
+public class MainActivity extends Activity 
 {
-	private EditText logo1;
-	private Button create;
-    @Override
+	@Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
@@ -39,63 +43,13 @@ public class MainActivity extends Activity implements View.OnClickListener
 			finish();
 	}
 
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data)
-	{
-		// TODO: Implement this method
-		super.onActivityResult(requestCode, resultCode, data);
-		if(requestCode==4644&&resultCode==RESULT_OK){
-			logo1.setText(data.getDataString());
-		}
-	}
-	
+
 private void init(){
-	setContentView(R.layout.main);
-	logo1=findViewById(R.id.logo1);
-	logo1.setOnClickListener(this);
-	create=findViewById(R.id.create);
-	create.setOnClickListener(this);
+	getFragmentManager().beginTransaction().add(android.R.id.content,new Main()).commitAllowingStateLoss();
 	
 }
-	@Override
-	public void onClick(View p1)
-	{
-		switch(p1.getId()){
-			case R.id.logo1:
-				startActivityForResult(new Intent(Intent.ACTION_GET_CONTENT).setType("image/*"),4644);
-				break;
-			case R.id.create:
-				if(logo1.getText().length()>0){
-				p1.setEnabled(false);
-				final Uri logo1path=Uri.parse(logo1.getText().toString());
-				new Thread(){
-					public void run(){
-						if(!MakeImg.createImg(getApplicationContext(),Environment.getExternalStorageDirectory(),logo1path,logo1path,false))
-							runOnUiThread(new Runnable(){
-
-									@Override
-									public void run()
-									{
-										create.setEnabled(true);
-										Toast.makeText(getApplicationContext(),"创建失败",Toast.LENGTH_SHORT).show();
-									}
-								});
-							else
-								//MakeImg.test(getApplicationContext(),logo1path);
-							runOnUiThread(new Runnable(){
-
-									@Override
-									public void run()
-									{
-										create.setEnabled(true);
-									}
-								});
-					}
-				}.start();
-				}
-				break;
-		}
-	}
+	
+	
 
 	
 }
