@@ -11,6 +11,7 @@ import java.io.ByteArrayOutputStream;
 import android.net.Uri;
 import android.content.Context;
 import java.io.FileOutputStream;
+import com.moe.splashlogo.util.BmpUtil;
 
 public class MakeImg
 {

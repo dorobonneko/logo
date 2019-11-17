@@ -1,0 +1,24 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="match_parent"
+    >
+    <ImageView
+		android:layout_gravity="center"
+		android:adjustViewBounds="true"
+		android:layout_width="match_parent"
+		android:layout_height="wrap_content"
+		android:scaleType="centerInside"
+		android:id="@+id/img"/>
+	<TextView
+		android:shadowColor="#ffffffff"
+		android:radius="1dp"
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="bottom|center_horizontal"
+		android:id="@+id/hint"/>
+	<CheckBox
+		android:layout_width="wrap_content"
+		android:layout_height="wrap_content"
+		android:layout_gravity="end|bottom"
+		android:id="@+id/check"/>
+</FrameLayout>

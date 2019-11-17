@@ -8,23 +8,30 @@ import java.io.ByteArrayInputStream;
 import android.text.TextUtils;
 import java.util.List;
 import java.util.ArrayList;
+import android.net.Uri;
+import android.graphics.Bitmap;
+import java.util.zip.ZipEntry;
 
 public class LogoConfig
 {
 	public String product,block;
-	public String[] input;
+	//public String[] input;
 	public int size,width,height;
 	public Offset offset[];
 	private List<Offset> offsets=new ArrayList<>();
 	private ZipFile zf;
 	public LogoConfig(String file) throws IOException{
 		zf=new ZipFile(file);
-		BufferedReader br=new BufferedReader(new InputStreamReader(zf.getInputStream(zf.getEntry("logo.ini"))));
+		ZipEntry ini=zf.getEntry("logo.ini");
+		if(ini==null)throw new IOException();
+		BufferedReader br=new BufferedReader(new InputStreamReader(zf.getInputStream(ini)));
 		String line=null;
 		while((line=br.readLine())!=null)
 			if(!TextUtils.isEmpty(line))
 			readLine(line);
 		br.close();
+		offset=offsets.toArray(new Offset[0]);
+		offsets.clear();
 	}
 	public InputStream getOffset(Offset offset) throws IOException{
 		switch(offset.type){
@@ -53,16 +60,16 @@ public class LogoConfig
 				size=Integer.parseUnsignedInt(line.substring(offset+1).trim().substring(2),16);
 				break;
 			case "pixel":
-				String[] pixel=line.substring(offset+1).trim().split(",");
+				String[] pixel=line.substring(offset+1).trim().split("x");
 				width=Integer.parseInt(pixel[0]);
 				height=Integer.parseInt(pixel[1]);
 				break;
 			case "block":
 				block=line.substring(offset+1).trim();
 				break;
-			case "input":
+			/*case "input":
 				input=line.substring(offset+1).trim().split(",");
-				break;
+				break;*/
 			case "offset":
 				int sp=line.indexOf(";");
 				if(sp==-1)throw new IllegalStateException("no offset");
@@ -72,7 +79,7 @@ public class LogoConfig
 				if(offset==-1)throw new IllegalStateException("offset no data");
 				offset_.type=Offset.Type.parse(line.substring(sp+1,offset).trim());
 				offset_.data=line.substring(offset+1).trim();
-				offsets.add(offset_);
+				offsets.add(offset_.type==Offset.Type.REF?new RefOffset(offset_):offset_);
 				break;
 		}
 	}
@@ -93,6 +100,15 @@ public class LogoConfig
 				}
 				throw new IllegalStateException("unknow offset type"); 
 			}
+		}
+	}
+	public static class RefOffset extends Offset{
+		public Uri uri;
+		public Bitmap bitmap;
+		public RefOffset(Offset offset){
+			super.offset=offset.offset;
+			super.data=offset.data;
+			super.type=offset.type;
 		}
 	}
 }
