@@ -62,7 +62,7 @@ public class Main extends Fragment implements View.OnClickListener
 				case 9467:{
 						Bundle b=new Bundle();
 						b.putParcelable("data",FileUtil.getFile(getContext(),data.getData()));
-						Fragment f=new NewProject();
+						Fragment f=new OpenImg();
 						f.setArguments(b);
 						getFragmentManager().beginTransaction().replace(android.R.id.content,f).addToBackStack(null).commitAllowingStateLoss();
 

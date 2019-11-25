@@ -17,6 +17,8 @@ import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.view.MenuItem;
 import com.moe.splashlogo.fragment.Main;
+import android.view.ViewConfiguration;
+import android.util.TypedValue;
 
 public class MainActivity extends Activity 
 {
@@ -46,8 +48,7 @@ public class MainActivity extends Activity
 
 private void init(){
 	getFragmentManager().beginTransaction().add(android.R.id.content,new Main()).commitAllowingStateLoss();
-	
-}
+	}
 	
 	
 

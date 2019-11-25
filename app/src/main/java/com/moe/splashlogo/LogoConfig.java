@@ -11,9 +11,12 @@ import java.util.ArrayList;
 import android.net.Uri;
 import android.graphics.Bitmap;
 import java.util.zip.ZipEntry;
+import java.io.DataInputStream;
+import com.moe.splashlogo.util.Arrays;
 
 public class LogoConfig
 {
+	public static final byte[] header=new byte[]{0x4c,0x4f,0x47,0x4f,0x21,0x21,0x21,0x21};
 	public String product,block;
 	//public String[] input;
 	public int size,width,height;
@@ -32,6 +35,16 @@ public class LogoConfig
 		br.close();
 		offset=offsets.toArray(new Offset[0]);
 		offsets.clear();
+	}
+	public LogoConfig(InputStream img_input,int offset) throws IOException {
+		img_input.skip(offset);
+		DataInputStream input=new DataInputStream(img_input);
+		byte[] header=new byte[56];
+		input.readFully(header);
+		if(!Arrays.startsWith(header,LogoConfig.header))
+			throw new IllegalStateException("it's not logo.img");
+		offsets.add(new Offset(0x4000,header));
+		input.skip(4040);//offset 5000
 	}
 	public InputStream getOffset(Offset offset) throws IOException{
 		switch(offset.type){
@@ -87,6 +100,24 @@ public class LogoConfig
 		public int offset;
 		public String data;
 		public Type type;
+		public Offset(int offset,String data,Type type){
+			this.offset=offset;
+			this.data=data;
+			this.type=type;
+		}
+		public Offset(int offset,byte... data){
+			StringBuilder sb=new StringBuilder();
+			for(int i=0;i<data.length;i++){
+				sb.append("0x".concat(Integer.toHexString(Byte.toUnsignedInt(data[i])))).append(",");
+			}
+			sb.setLength(sb.length()-1);
+			this.offset=offset;
+			this.data=sb.toString();
+			sb.setLength(0);
+			sb.trimToSize();
+			this.type=Type.BYTE;
+		}
+		public Offset(){}
 		public enum Type{
 			BYTE,REF,FILE;
 			public static Type parse(String type){
