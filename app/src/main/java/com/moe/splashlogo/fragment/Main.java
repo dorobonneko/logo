@@ -7,6 +7,9 @@ import android.content.Intent;
 import android.os.Bundle;
 import com.moe.splashlogo.R;
 import com.moe.splashlogo.util.FileUtil;
+import java.io.InputStream;
+import java.io.IOException;
+import com.moe.splashlogo.entity.Logo;
 
 public class Main extends Fragment implements View.OnClickListener
 {
@@ -46,7 +49,7 @@ public class Main extends Fragment implements View.OnClickListener
 		}
 	}
 	@Override
-	public void onActivityResult(int requestCode, int resultCode, Intent data)
+	public void onActivityResult(int requestCode, int resultCode, final Intent data)
 	{
 		// TODO: Implement this method
 		super.onActivityResult(requestCode, resultCode, data);
@@ -60,13 +63,33 @@ public class Main extends Fragment implements View.OnClickListener
 						getFragmentManager().beginTransaction().replace(android.R.id.content,f).addToBackStack(null).commitAllowingStateLoss();
 					}break;
 				case 9467:{
-						Bundle b=new Bundle();
-						b.putParcelable("data",FileUtil.getFile(getContext(),data.getData()));
-						Fragment f=new OpenImg();
-						f.setArguments(b);
-						getFragmentManager().beginTransaction().replace(android.R.id.content,f).addToBackStack(null).commitAllowingStateLoss();
+					ProgressDialog pd=new ProgressDialog(getActivity());
+					pd.setProgressStyle(android.R.style.Widget_DeviceDefault_ProgressBar_Large);
+						new Thread(){
+							public void run(){
+								InputStream input=null;
+								try{
+									input=getContext().getContentResolver().openInputStream(data.getData());
+									Logo logo=new Logo(input,Logo.HEADER_OFFSET);
+									LogoFragment f=new LogoFragment();
+									f.setLogo(logo);
+									getFragmentManager().beginTransaction().replace(android.R.id.content,f).addToBackStack(null).commitAllowingStateLoss();
 
-					}
+									
+								}catch(Exception e){
+									
+								}finally{
+									try
+									{
+										if (input != null)
+											input.close();
+									}
+									catch (IOException e)
+									{}
+								}
+							}
+						}.start();
+						}
 					break;
 			}
 	}
