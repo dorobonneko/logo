@@ -16,13 +16,7 @@ public class OpenImg extends Fragment
 		super.onActivityCreated(savedInstanceState);
 		Bundle bundle=getArguments();
 		Uri file=bundle.getParcelable("data");
-		try
-		{
-			InputStream input=getContext().getContentResolver().openInputStream(file);
-			Logo logo=new Logo(input,Logo.HEADER_OFFSET);
-		}
-		catch (Exception e)
-		{}
+		
 	}
 	
 }

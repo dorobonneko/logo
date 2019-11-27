@@ -10,6 +10,7 @@ import com.moe.splashlogo.util.FileUtil;
 import java.io.InputStream;
 import java.io.IOException;
 import com.moe.splashlogo.entity.Logo;
+import com.moe.splashlogo.entity.Logo3;
 
 public class Main extends Fragment implements View.OnClickListener
 {
@@ -70,7 +71,20 @@ public class Main extends Fragment implements View.OnClickListener
 								InputStream input=null;
 								try{
 									input=getContext().getContentResolver().openInputStream(data.getData());
-									Logo logo=new Logo(input,Logo.HEADER_OFFSET);
+									Logo logo=null;
+									try{
+										logo=Logo.decode1(input,Logo.HEADER_OFFSET);
+										}catch(Exception e){
+											input.close();
+											input=getContext().getContentResolver().openInputStream(data.getData());
+											try{
+												logo=Logo.decode2(input,Logo.HEADER_OFFSET);
+												}catch(Exception ee){
+													input.close();
+													logo=new Logo3(getContext().getContentResolver().openInputStream(data.getData()));
+													
+												}
+										}
 									LogoFragment f=new LogoFragment();
 									f.setLogo(logo);
 									getFragmentManager().beginTransaction().replace(android.R.id.content,f).addToBackStack(null).commitAllowingStateLoss();

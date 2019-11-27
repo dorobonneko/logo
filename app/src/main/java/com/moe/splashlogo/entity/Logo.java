@@ -11,39 +11,25 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.io.FileNotFoundException;
 import com.moe.splashlogo.util.BmpUtil;
+import java.util.Iterator;
+import java.util.List;
 
-public class Logo
+public abstract  class Logo
 {
 	public static final byte[] HEADER=new byte[]{'L','O','G','O','!','!','!','!'};
 	public static final int HEADER_OFFSET=0x4000;
 	private ArrayList<Image> images=new ArrayList<>();
-	public Logo(InputStream dis,int offset) throws IOException{
-		dis.skip(offset);
-		int skip=HEADER_OFFSET;
-		byte[] data=new byte[8];
-		Arrays.readFully(dis,data);
-		skip+=data.length;
-		if(!Arrays.startsWith(data,HEADER))throw new IllegalStateException("it's not logo.img");
-		do{
-			Arrays.readFully(dis,data);
-			skip+=data.length;
-		if(Arrays.startsWith(data,new byte[8]))break;
-			Image image=new Image();
-			image.offset=Integer.parseInt(Integer.toHexString(data[3]&0xff)+Integer.toHexString(data[2]&0xff)+Integer.toHexString(data[1]&0xff)+Integer.toHexString(data[0]&0xff)+"000",16);
-			image.size=Integer.parseInt(Integer.toHexString(data[7]&0xff)+Integer.toHexString(data[6]&0xff)+Integer.toHexString(data[5]&0xff)+Integer.toHexString(data[4]&0xff)+"000",16);
-			images.add(image);
-		}while(true);
-		for(Image image:images){
-			skip+=dis.skip(image.offset-skip);
-			Arrays.readFully(dis,image.header);
-			skip+=image.header.length;
-			int size=(image.header[2]&0xff)|((image.header[3]&0xff)<<8)|((image.header[4]&0xff)<<16)|((image.header[5]&0xff)<<24);
-			Arrays.readFully(dis,image.info);
-			skip+=image.info.length;
-			image.body=new byte[size];
-			Arrays.readFully(dis,image.body);
-			skip+=size;
+	public static Logo decode1(InputStream input,int offset) throws IOException{
+		return new Logo1(input,offset);
+	}
+	public static Logo decode2(InputStream input,int offset) throws IOException{
+		return new Logo2(input,offset);
 		}
+	protected void addImage(Image i){
+		images.add(i);
+	}
+	protected List<Image> images(){
+		return images;
 	}
 	public Image[] getImages(){
 		return images.toArray(new Image[0]);
@@ -57,39 +43,21 @@ public class Logo
 	public int getCount(){
 		return images.size();
 	}
-	public boolean save(File file){
-		RandomAccessFile save=null;
-		try
-		{
-			save=new RandomAccessFile(file.getAbsolutePath(), "rw");
-			save.seek(HEADER_OFFSET);
-			save.write(HEADER);
-			for(Image image:images){
-				save.write(getBytes(image.offset));
-				save.write(getBytes(image.size));
-				long point=save.getFilePointer();
-				save.seek(image.offset);
-				image.write(save);
-				save.seek(point);
-			}
+	public abstract boolean save(File file);
+	public void recycle(){
+		Iterator<Image> iterator=images.iterator();
+		while(iterator.hasNext()){
+			Image image=iterator.next();
+			iterator.remove();
+			if(image.bitmap!=null)
+				image.bitmap.recycle();
+			image.header=null;
+			image.info=null;
+			image.body=null;
 		}
-		catch (Exception e)
-		{
-			return false;
-		}finally{
-			try
-			{
-				save.close();
-			}
-			catch (IOException e)
-			{}
-		}
-		return true;
 	}
-	private byte[] getBytes(int value){
-		String str=Integer.toHexString(value);
-		str=str.substring(0,str.length()-3);
-		value=Integer.parseInt(str,16);
+	protected byte[] getBytes(int value){
+		value=value>>>12;
 		byte[] data=new byte[]{(byte)value,(byte)(value>>8),(byte)(value>>16),(byte)(value>>24)};
 //		if(str.length()%2!=0)
 //			str="0"+str;
@@ -103,7 +71,7 @@ public class Logo
 	public static class Image{
 		public int offset,size;
 		public byte[] header=new byte[14],info=new byte[40],body;
-		private Bitmap bitmap;
+		protected Bitmap bitmap;
 		public Image(Image old,Bitmap bitmap){
 			offset=old.offset;
 			size=old.size;
@@ -122,7 +90,7 @@ public class Logo
 			}
 			return bitmap;
 		}
-		private void write(RandomAccessFile save) throws IOException{
+		void write(RandomAccessFile save) throws IOException{
 			if(body!=null){
 				save.write(header);
 				save.write(info);

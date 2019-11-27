@@ -5,12 +5,14 @@ import com.moe.splashlogo.*;
 import android.graphics.BitmapFactory;
 import com.moe.splashlogo.entity.Logo;
 import java.io.IOException;
+import android.graphics.Bitmap;
 
 public class LogoImageAdapter extends ImageAdapter
 {
 	private Logo logo;
-	public LogoImageAdapter(Logo config){
-		this.logo=config;
+	public LogoImageAdapter(Logo config)
+	{
+		this.logo = config;
 	}
 
 	@Override
@@ -33,8 +35,14 @@ public class LogoImageAdapter extends ImageAdapter
 		View v=super.getView(p1, p2, p3);
 		ViewHolder vh=(ViewHolder) v.getTag();
 		Logo.Image image=logo.getImage(p1);
-		vh.img.setImageBitmap(image.getBitmap());
-		vh.hint.setText(image.getBitmap().getWidth()+"x"+image.getBitmap().getHeight());
+		Bitmap bitmap=image.getBitmap();
+		if (bitmap == null)
+			vh.img.setImageResource(R.drawable.plus);
+		else
+		{
+			vh.img.setImageBitmap(bitmap);
+			vh.hint.setText(image.getBitmap().getWidth() + "x" + image.getBitmap().getHeight());
+		}
 		return v;
 	}
 
@@ -50,8 +58,10 @@ public class LogoImageAdapter extends ImageAdapter
 		return new ViewHolder(v);
 	}
 
-	public static class ViewHolder extends ImageAdapter.ViewHolder{
-		ViewHolder(View v){
+	public static class ViewHolder extends ImageAdapter.ViewHolder
+	{
+		ViewHolder(View v)
+		{
 			super(v);
 			check.setVisibility(View.INVISIBLE);
 		}

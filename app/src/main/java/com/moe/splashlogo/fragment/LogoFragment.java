@@ -32,6 +32,14 @@ public class LogoFragment extends Fragment implements GridView.OnItemClickListen
 	}
 
 	@Override
+	public void onDestroyView()
+	{
+		// TODO: Implement this method
+		super.onDestroyView();
+		logo.recycle();
+	}
+
+	@Override
 	public void onViewCreated(View view, Bundle savedInstanceState)
 	{
 		// TODO: Implement this method
@@ -84,6 +92,7 @@ public class LogoFragment extends Fragment implements GridView.OnItemClickListen
 						File folder=new File(Environment.getExternalStorageDirectory(),"logo");
 						if(!folder.isDirectory())folder.mkdirs();
 						final File file=new File(folder,"logo_new.img");
+						if(file.exists())file.delete();
 						final boolean result=logo.save(file);
 						
 						getActivity().runOnUiThread(new Runnable(){
