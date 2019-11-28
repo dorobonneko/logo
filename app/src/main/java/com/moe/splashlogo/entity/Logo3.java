@@ -9,11 +9,15 @@ import com.moe.splashlogo.io.ArrayInputStream;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import com.moe.splashlogo.io.ArrayOutputStream;
+import java.io.RandomAccessFile;
+import java.io.FileNotFoundException;
+import com.moe.splashlogo.util.BmpUtil;
 
 public class Logo3 extends Logo
 {
 	private byte[] magic;
 	private ArrayInputStream ais;
+	private int fileSize;
 	public Logo3(InputStream input) throws IOException{
 		ByteArrayOutputStream baos=new ArrayOutputStream();
 		int len=-1;
@@ -21,6 +25,7 @@ public class Logo3 extends Logo
 		while((len=input.read(buff))!=-1){
 			baos.write(buff,0,len);
 		}
+		fileSize=baos.size();
 		ais=new ArrayInputStream(((ArrayOutputStream)baos).getBuff());
 		baos=new ByteArrayOutputStream();
 		System.gc();
@@ -53,10 +58,16 @@ public class Logo3 extends Logo
 				//保存数据
 				Image image=new Logo3.Image();
 				image.offset=index;
-				image.size=size+54;
+				image.length=size+54;
 				addImage(image);
-				index+=image.size;
+				index+=image.length;
+			if(getCount()-1>0){
+				Logo.Image old=getImage(getCount()-2);
+				old.size=image.offset-old.offset;
+			}
 		}
+		Logo.Image old=getImage(getCount()-1);
+		old.size=fileSize-old.offset;
 		/*long time=System.currentTimeMillis();
 		Hex hex=Arrays.formatToHex(input);
 		time=System.currentTimeMillis()-time;
@@ -79,20 +90,50 @@ public class Logo3 extends Logo
 	@Override
 	public boolean save(File file)
 	{
-		// TODO: Implement this method
+		RandomAccessFile save=null;
+		try
+		{
+			save = new RandomAccessFile(file.getAbsolutePath(), "rw");
+			save.setLength(fileSize);
+			save.seek(HEADER_OFFSET);
+			save.write(magic);
+			for(Logo.Image image:images()){
+				save.seek(image.offset);
+				image.write(save);
+			}
+			return true;
+		}
+		catch (Exception e)
+		{
+			file.delete();
+		}finally{
+			try
+			{
+				if(save!=null)
+				save.close();
+			}
+			catch (IOException e)
+			{}
+		}
 		return false;
 	}
 	class Image extends Logo.Image
 	{
-
+		public int length;
 		@Override
 		public synchronized Bitmap getBitmap()
 		{
 			//重写获取图片方法，改为从ArrayInputStream中获取
 			if(bitmap==null){
-				bitmap=BitmapFactory.decodeByteArray(ais.sourceBytes(),offset,size);
+				bitmap=BitmapFactory.decodeByteArray(ais.sourceBytes(),offset,length);
 			}
 			return bitmap;
+		}
+
+		@Override
+		void write(RandomAccessFile save) throws IOException
+		{
+			save.write(ais.sourceBytes(),offset,length);
 		}
 		
 	}

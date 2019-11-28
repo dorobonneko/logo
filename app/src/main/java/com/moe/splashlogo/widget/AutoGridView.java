@@ -47,7 +47,7 @@ public class AutoGridView extends GridView
 		}
 		if(getChildCount()%getNumColumns()!=0){
 			height+=max;
-			for(int n=getChildCount()-getChildCount()/3;n<getChildCount();n++){
+			for(int n=getChildCount()-getChildCount()%3;n<getChildCount();n++){
 				View c=getChildAt(n);
 				c.measure(c.getMeasuredWidth(),MeasureSpec.makeMeasureSpec(max,MeasureSpec.EXACTLY));
 				c.setMinimumHeight(max);
@@ -71,7 +71,7 @@ public class AutoGridView extends GridView
 			if((i+1)%getNumColumns()==0){
 				for(int n=i-getNumColumns()+1;n<i+1;n++){
 					View c=getChildAt(n);
-					//c.measure(c.getMeasuredWidth(),MeasureSpec.makeMeasureSpec(max,MeasureSpec.EXACTLY));
+					c.measure(c.getMeasuredWidth(),MeasureSpec.makeMeasureSpec(max,MeasureSpec.EXACTLY));
 					c.setMinimumHeight(max);
 				}
 				height+=max;
@@ -80,9 +80,9 @@ public class AutoGridView extends GridView
 		}
 		if(max!=0){
 			height+=max;
-			for(int n=getChildCount()-getChildCount()/3;n<getChildCount();n++){
+			for(int n=getChildCount()-getChildCount()%3;n<getChildCount();n++){
 				View c=getChildAt(n);
-				//c.measure(c.getMeasuredWidth(),MeasureSpec.makeMeasureSpec(max,MeasureSpec.EXACTLY));
+				c.measure(c.getMeasuredWidth(),MeasureSpec.makeMeasureSpec(max,MeasureSpec.EXACTLY));
 				c.setMinimumHeight(max);
 			
 			}
