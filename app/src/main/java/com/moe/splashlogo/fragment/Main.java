@@ -91,7 +91,14 @@ public class Main extends Fragment implements View.OnClickListener
 
 									
 								}catch(Exception e){
-									
+									getActivity().runOnUiThread(new Runnable(){
+
+											@Override
+											public void run()
+											{
+												Toast.makeText(getContext(),"解析失败",Toast.LENGTH_SHORT).show();
+											}
+										});
 								}finally{
 									try
 									{

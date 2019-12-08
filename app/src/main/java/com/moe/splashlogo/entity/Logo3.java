@@ -33,7 +33,7 @@ public class Logo3 extends Logo
 		if(index==-1)throw new IllegalArgumentException("it's not logo img");
 		baos.write(HEADER);
 		buff=new byte[8];
-		ais.seek(0x4000+8);
+		ais.seek(index+8);
 		do{
 			ais.readFully(buff);
 			if(Arrays.startsWith(buff,new byte[8]))

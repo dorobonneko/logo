@@ -15,11 +15,12 @@ public class Arrays
 		return true;
 	}
 	public static int indexOf(byte[] src,byte[] dst,int fromIndex){
+		out:
 		for(;fromIndex<src.length;fromIndex++){
 			if(src[fromIndex]==dst[0]){
 				for(int n=1;n<dst.length;n++){
 					if(src[fromIndex+n]!=dst[n])
-						break;
+						continue out;
 				}
 				return fromIndex;
 			}
